@@ -50,10 +50,10 @@
 #define BLOCK_OUTPUT_IN_BPS 2
 #define BLOCK_OUTPUT_IN_BYTES 3
 
-#define allocate(v, t, n)                              \
-    if ((v = (t*)malloc(sizeof(t) * (n))) == NULL) {   \
-        fprintf(stderr, "Out of memory for " #v "\n"); \
-        exit(-1);                                      \
+#define allocate(v, t, n)                                                      \
+    if ((v = (t*)malloc(sizeof(t) * (n))) == NULL) {                           \
+        fprintf(stderr, "Out of memory for " #v "\n");                         \
+        exit(-1);                                                              \
     }
 
 //#define SHOW_MEM(n,t) fprintf(stderr,"Allocate %10d\n",(n)*sizeof(t));
@@ -62,10 +62,10 @@
 
 #define MAX(a, b) ((a) < (b) ? (b) : (a))
 
-#define CHECK_SYMBOL_RANGE(s)                               \
-    if (((s) < 1) || ((s) > MAX_SYMBOL)) {                  \
-        fprintf(stderr, "Symbol %u is out of range.\n", s); \
-        exit(-1);                                           \
+#define CHECK_SYMBOL_RANGE(s)                                                  \
+    if (((s) < 1) || ((s) > MAX_SYMBOL)) {                                     \
+        fprintf(stderr, "Symbol %u is out of range.\n", s);                    \
+        exit(-1);                                                              \
     }
 
 /* encoding */

@@ -5,7 +5,7 @@ Adapted by aht to allow a level of indirection.
 Tue Sep 16 09:58:43 EST 1997
 
         The method for calculating codelengths in function
-        calculate_minimum_redundancy is described in 
+        calculate_minimum_redundancy is described in
 
         @inproceedings{mk95:wads,
                 author = "A. Moffat and J. Katajainen",
@@ -19,14 +19,14 @@ Tue Sep 16 09:58:43 EST 1997
                 pages = "393-402",
         }
 
-        The abstract of that paper may be fetched from 
+        The abstract of that paper may be fetched from
         http://www.cs.mu.oz.au/~alistair/abstracts/wads95.html
         A revised version is currently being prepared.
 
         Written by
-		Alistair Moffat, alistair@cs.mu.oz.au,
-		Jyrki Katajainen, jyrki@diku.dk
-	November 1996.
+                Alistair Moffat, alistair@cs.mu.oz.au,
+                Jyrki Katajainen, jyrki@diku.dk
+        November 1996.
 */
 
 /*** Function to calculate in-place a minimum-redundancy code

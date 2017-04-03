@@ -32,7 +32,8 @@ char very_verbose = 0;
 inline void PRINT_TIME(const char* s)
 {
     if (verbose)
-        fprintf(stderr, "%-22s: %10.2f sec\n", s, (float)clock() / (float)CLOCKS_PER_SEC);
+        fprintf(stderr, "%-22s: %10.2f sec\n", s,
+            (float)clock() / (float)CLOCKS_PER_SEC);
     fflush(stderr);
 }
 /*
@@ -49,34 +50,46 @@ inline void PRINT_TIME(const char *s) {
 
 void usage()
 {
-    fprintf(stderr, "\nUsage: shuff -e -b block_size [-Z] [-v{1|2|3}] [file] /* Encode in 1-pass mode\n");
-    fprintf(stderr, "       shuff -e1 filename [-v1] [file]                /* 1st pass of 2-pass enc\n");
-    fprintf(stderr, "       shuff -e2 filename [-v1] [file]                /* 2nd pass of 2-pass enc\n");
-    fprintf(stderr, "       shuff -d [-v1] [file]                          /* Decode\n");
+    fprintf(stderr, "\nUsage: shuff -e -b block_size [-Z] [-v{1|2|3}] [file] "
+                    "/* Encode in 1-pass mode\n");
+    fprintf(stderr, "       shuff -e1 filename [-v1] [file]                /* "
+                    "1st pass of 2-pass enc\n");
+    fprintf(stderr, "       shuff -e2 filename [-v1] [file]                /* "
+                    "2nd pass of 2-pass enc\n");
+    fprintf(stderr,
+        "       shuff -d [-v1] [file]                          /* Decode\n");
 
     fprintf(stderr, "\n  One pass encoding\n");
     fprintf(stderr, "  -------------------\n");
-    fprintf(stderr, "    -bn Sets the block size at n input symbols. (Default 131072 symbols)\n");
-    fprintf(stderr, "    -Z  indicates that a 0 input symbol terminates a block (-b is ignored).\n");
-    fprintf(stderr, "        If -Z is not present, 0's are treated as input symbols.\n");
-    fprintf(stderr, "    -v1 Verbose.  Prints summary statistics about the coding process.\n");
-    fprintf(stderr, "    -v2 Very verbose.  Prints info about each block (bps) during encoding.\n");
-    fprintf(stderr, "    -v3 Very verbose.  Prints info about each block (bits) during encoding.\n");
+    fprintf(stderr, "    -bn Sets the block size at n input symbols. (Default "
+                    "131072 symbols)\n");
+    fprintf(stderr, "    -Z  indicates that a 0 input symbol terminates a "
+                    "block (-b is ignored).\n");
+    fprintf(stderr,
+        "        If -Z is not present, 0's are treated as input symbols.\n");
+    fprintf(stderr, "    -v1 Verbose.  Prints summary statistics about the "
+                    "coding process.\n");
+    fprintf(stderr, "    -v2 Very verbose.  Prints info about each block (bps) "
+                    "during encoding.\n");
+    fprintf(stderr, "    -v3 Very verbose.  Prints info about each block "
+                    "(bits) during encoding.\n");
 
     fprintf(stderr, "\n  Two pass encoding\n");
     fprintf(stderr, "  -------------------\n");
-    fprintf(stderr, "    The \"filename\" argument of -e1 and -e2 specifies the name of the file to\n");
-    fprintf(stderr, "    which frequency information is written after the first pass of the input\n");
+    fprintf(stderr, "    The \"filename\" argument of -e1 and -e2 specifies "
+                    "the name of the file to\n");
+    fprintf(stderr, "    which frequency information is written after the "
+                    "first pass of the input\n");
     fprintf(stderr, "    data, and read for the second pass.\n");
-    fprintf(stderr, "    -v1 Verbose.  Prints statistics about the coding process.\n");
+    fprintf(stderr,
+        "    -v1 Verbose.  Prints statistics about the coding process.\n");
     fprintf(stderr, "\n");
     exit(-1);
 } // usage()
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 
-int32_t
-main(int32_t argc, char* argv[])
+int32_t main(int32_t argc, char* argv[])
 {
     int32_t block_size = DEFAULT_BLOCK_LEN;
     char meth = 'a', ch;
@@ -85,11 +98,14 @@ main(int32_t argc, char* argv[])
     FILE *freq_file = NULL, *in_file;
 
     if (sizeof(uint32_t) * 8 != ASSUMING_ULONG) {
-        fprintf(stderr, "Edit code.h to reflect sizeof(uint32_t)=%" PRIu64 "\n", sizeof(uint32_t) * 8);
+        fprintf(stderr, "Edit code.h to reflect sizeof(uint32_t)=%" PRIu64 "\n",
+            sizeof(uint32_t) * 8);
         return -1;
     }
     if (LOG2_MAX_SYMBOL + LOG2_L > sizeof(uint32_t) * 8) { /* see encode.c */
-        fprintf(stderr, "encode.c assumes LOG2_MAX_SYMBOL + LOG2_L (%d) <= sizeof(uint32_t) (%" PRIu64 ")\n", LOG2_MAX_SYMBOL + LOG2_L, sizeof(uint32_t) * 8);
+        fprintf(stderr, "encode.c assumes LOG2_MAX_SYMBOL + LOG2_L (%d) <= "
+                        "sizeof(uint32_t) (%" PRIu64 ")\n",
+            LOG2_MAX_SYMBOL + LOG2_L, sizeof(uint32_t) * 8);
         return -1;
     }
 
@@ -156,7 +172,8 @@ main(int32_t argc, char* argv[])
     }
 
     if ((meth == '1') || (meth == '2'))
-        if ((freq_file = fopen(freq_filename, meth == '1' ? "w" : "r")) == NULL) {
+        if ((freq_file = fopen(freq_filename, meth == '1' ? "w" : "r"))
+            == NULL) {
             fprintf(stderr, "Cannot open frequency file %s\n", freq_filename);
             return -1;
         }

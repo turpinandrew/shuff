@@ -38,8 +38,10 @@ uint32_t offset[L];
 
 /* prototypes */
 void build_canonical_arrays(uint32_t cw_lens[], uint32_t);
-void process_block(uint32_t* block, uint32_t b, uint32_t* freq, uint32_t* syms, FILE* out_file);
-uint32_t one_pass_freq_count(uint32_t block[], uint32_t b, uint32_t freq[], uint32_t syms[], uint32_t);
+void process_block(uint32_t* block, uint32_t b, uint32_t* freq, uint32_t* syms,
+    FILE* out_file);
+uint32_t one_pass_freq_count(
+    uint32_t block[], uint32_t b, uint32_t freq[], uint32_t syms[], uint32_t);
 void build_codes(FILE* f, uint32_t*, uint32_t*, uint32_t n);
 void generate_mapping(uint32_t[], uint32_t[], uint32_t[], uint32_t, uint32_t);
 
@@ -49,7 +51,8 @@ void generate_mapping(uint32_t[], uint32_t[], uint32_t[], uint32_t, uint32_t);
 */
 void print_summary_stats()
 {
-    fprintf(stderr, "\nMessage symbols       : %10" PRIu32 "\n", num_source_syms);
+    fprintf(
+        stderr, "\nMessage symbols       : %10" PRIu32 "\n", num_source_syms);
     fprintf(stderr, "Header bits           : %10" PRIu32 " (%5.2f bps)\n",
         num_header_bits, (double)num_header_bits / num_source_syms);
     fprintf(stderr, "Subalphabet selection : %10" PRIu32 " (%5.2f bps)\n",
@@ -61,33 +64,42 @@ void print_summary_stats()
     fprintf(stderr, "Padding bits          : %10" PRIu32 " (%5.2f bps)\n",
         num_padding_bits, (double)num_padding_bits / num_source_syms);
     fprintf(stderr, "Total bytes           : %10" PRIu32 " (%5.2f bps)\n",
-        (num_interp_bits + num_unary_bits + num_header_bits + num_padding_bits + num_source_bits) / 8,
-        (double)(num_interp_bits + num_unary_bits + num_header_bits + num_padding_bits + num_source_bits) / num_source_syms);
+        (num_interp_bits + num_unary_bits + num_header_bits + num_padding_bits
+            + num_source_bits)
+            / 8,
+        (double)(num_interp_bits + num_unary_bits + num_header_bits
+            + num_padding_bits + num_source_bits)
+            / num_source_syms);
 } /* print_summary_stats() */
 
 /*
 **
 ** print a wee little summary for each block of where all the money went...
-** try and keep the format strings in BLOCK_SUMMARY_HEADINGS and the 
+** try and keep the format strings in BLOCK_SUMMARY_HEADINGS and the
 ** fprintf of the data the "same"
 */
-#define BLOCK_SUMMARY_HEADINGS                                                                                \
-    do {                                                                                                      \
-        fprintf(stderr, "-------------------------------------------------------------------------------\n"); \
-        fprintf(stderr, "%4s %10s %10s %8s %8s %8s %8s %8s %8s\n",                                            \
-            "Num", "max", "Total", "header", "alpha", "codeword", "message", "padding", "Total");             \
-        fprintf(stderr, "%4s %10s %10s %8s %8s %8s %8s %8s %8s\n",                                            \
-            "syms", "symbol", "bytes", "", "select", "lengths", "", "", "");                                  \
-        if (very_verbose == BLOCK_OUTPUT_IN_BYTES)                                                            \
-            fprintf(stderr, "%4s %10s %10s %8s %8s %8s %8s %8s %8s\n",                                        \
-                "", "", "", "(bits)", "(bits)", "(bits)", "(bits)", "(bits)", "(bits)");                      \
-        else                                                                                                  \
-            fprintf(stderr, "%4s %10s %10s %8s %8s %8s %8s %8s %8s\n",                                        \
-                "", "", "", "(bps)", "(bps)", "(bps)", "(bps)", "(bps)", "(bps)");                            \
-        fprintf(stderr, "-------------------------------------------------------------------------------\n"); \
+#define BLOCK_SUMMARY_HEADINGS                                                 \
+    do {                                                                       \
+        fprintf(stderr, "----------------------------------------------------" \
+                        "---------------------------\n");                      \
+        fprintf(stderr, "%4s %10s %10s %8s %8s %8s %8s %8s %8s\n", "Num",      \
+            "max", "Total", "header", "alpha", "codeword", "message",          \
+            "padding", "Total");                                               \
+        fprintf(stderr, "%4s %10s %10s %8s %8s %8s %8s %8s %8s\n", "syms",     \
+            "symbol", "bytes", "", "select", "lengths", "", "", "");           \
+        if (very_verbose == BLOCK_OUTPUT_IN_BYTES)                             \
+            fprintf(stderr, "%4s %10s %10s %8s %8s %8s %8s %8s %8s\n", "", "", \
+                "", "(bits)", "(bits)", "(bits)", "(bits)", "(bits)",          \
+                "(bits)");                                                     \
+        else                                                                   \
+            fprintf(stderr, "%4s %10s %10s %8s %8s %8s %8s %8s %8s\n", "", "", \
+                "", "(bps)", "(bps)", "(bps)", "(bps)", "(bps)", "(bps)");     \
+        fprintf(stderr, "----------------------------------------------------" \
+                        "---------------------------\n");                      \
     } while (0);
 
-void print_block_summary(uint32_t num_distinct, uint32_t num_syms, uint32_t max_symbol)
+void print_block_summary(
+    uint32_t num_distinct, uint32_t num_syms, uint32_t max_symbol)
 {
     double i = (double)(num_interp_bits - last_num_interp_bits);
     double u = (double)(num_unary_bits - last_num_unary_bits);
@@ -97,19 +109,26 @@ void print_block_summary(uint32_t num_distinct, uint32_t num_syms, uint32_t max_
     double n = (double)num_syms;
 
     if (very_verbose == BLOCK_OUTPUT_IN_BYTES)
-        fprintf(stderr, "%4" PRIu32 " %10" PRIu32 " %10" PRIu32 " %8" PRIu32 " %8" PRIu32 " %8" PRIu32 " %8" PRIu32 " %8" PRIu32 " %8" PRIu32 "\n",
-            num_distinct, max_symbol, (uint32_t)(i + u + s + h + p) / 8, (uint32_t)h, (uint32_t)i, (uint32_t)u, (uint32_t)s, (uint32_t)p, (uint32_t)(i + u + s + h + p));
+        fprintf(stderr,
+            "%4" PRIu32 " %10" PRIu32 " %10" PRIu32 " %8" PRIu32 " %8" PRIu32
+            " %8" PRIu32 " %8" PRIu32 " %8" PRIu32 " %8" PRIu32 "\n",
+            num_distinct, max_symbol, (uint32_t)(i + u + s + h + p) / 8,
+            (uint32_t)h, (uint32_t)i, (uint32_t)u, (uint32_t)s, (uint32_t)p,
+            (uint32_t)(i + u + s + h + p));
     else
-        fprintf(stderr, "%4" PRIu32 " %10" PRIu32 " %10" PRIu32 " %8.2f %8.2f %8.2f %8.2f %8.2f %8.2f\n",
-            num_distinct, max_symbol, (uint32_t)(i + u + s + h + p) / 8, h / n, i / n, u / n, s / n, p / n, (i + u + s + h + p) / n);
+        fprintf(stderr, "%4" PRIu32 " %10" PRIu32 " %10" PRIu32
+                        " %8.2f %8.2f %8.2f %8.2f %8.2f %8.2f\n",
+            num_distinct, max_symbol, (uint32_t)(i + u + s + h + p) / 8, h / n,
+            i / n, u / n, s / n, p / n, (i + u + s + h + p) / n);
 
 } /* print_block_summary() */
 
 /*
-** Canonical encode.  cwlens[] contains codeword lens, mapping[] contains 
+** Canonical encode.  cwlens[] contains codeword lens, mapping[] contains
 ** ordinal symbol mapping.
 */
-inline uint32_t output(FILE* f, uint32_t i, uint32_t mapping[], uint32_t cwlens[])
+inline uint32_t output(
+    FILE* f, uint32_t i, uint32_t mapping[], uint32_t cwlens[])
 {
 
     uint32_t sym_num = mapping[i]; // ordinal symbol number
@@ -117,8 +136,9 @@ inline uint32_t output(FILE* f, uint32_t i, uint32_t mapping[], uint32_t cwlens[
     uint32_t len = cwlens[i];
 
     uint32_t cw = min_code[len - 1] + (sym_num - offset[len - 1]);
-    //fprintf(stderr, "currlen %4u symbol %6u -> %6u (cw = %8lx)\n",len, i,sym_num,cw);
-    //fflush(stderr);
+    // fprintf(stderr, "currlen %4u symbol %6u -> %6u (cw = %8lx)\n",len,
+    // i,sym_num,cw);
+    // fflush(stderr);
     OUTPUT_ULONG(f, cw, len);
     num_source_bits += len;
     num_source_syms += 1;
@@ -199,8 +219,8 @@ void two_pass_encoding(FILE* in_file, FILE* freq_file, FILE* out_file)
 /*
 ** count the freqs, build the codes, write the codes, "...and I am spent."
 */
-inline void
-process_block(uint32_t* block, uint32_t b, uint32_t* freq, uint32_t* syms, FILE* out_file)
+inline void process_block(
+    uint32_t* block, uint32_t b, uint32_t* freq, uint32_t* syms, FILE* out_file)
 {
     uint32_t *up, n;
     uint32_t max_symbol, temp;
@@ -282,7 +302,8 @@ void one_pass_encoding(FILE* in_file, FILE* out_file, int32_t block_size)
             num_blocks++;
         }
     } else {
-        while (fread(block, sizeof(uint32_t), 1, in_file) == 1) { /* block ahead */
+        while (
+            fread(block, sizeof(uint32_t), 1, in_file) == 1) { /* block ahead */
             up = block;
             b = 0;
             while (*up > 0) {
@@ -290,14 +311,17 @@ void one_pass_encoding(FILE* in_file, FILE* out_file, int32_t block_size)
                 b++;
                 if (b == current_array_size) {
                     current_array_size <<= 1;
-                    if ((block = (uint32_t*)realloc(block, current_array_size * sizeof(uint32_t))) == NULL) {
+                    if ((block = (uint32_t*)realloc(
+                             block, current_array_size * sizeof(uint32_t)))
+                        == NULL) {
                         fprintf(stderr, "Out of memory for block\n");
                         exit(-1);
                     }
                     up = block + b;
                 }
                 if (fread(up, sizeof(uint32_t), 1, in_file) != 1) {
-                    fprintf(stderr, "WARNING: last block not terminated by 0\n");
+                    fprintf(
+                        stderr, "WARNING: last block not terminated by 0\n");
                     *up = 0;
                     b--; /* exclude the 0 I add in 3 lines down */
                 }
@@ -320,8 +344,8 @@ void one_pass_encoding(FILE* in_file, FILE* out_file, int32_t block_size)
 /*
 ** Fill freq[] with freqs
 */
-uint32_t
-one_pass_freq_count(uint32_t block[], uint32_t b, uint32_t freq[], uint32_t syms[], uint32_t ms)
+uint32_t one_pass_freq_count(
+    uint32_t block[], uint32_t b, uint32_t freq[], uint32_t syms[], uint32_t ms)
 {
     uint32_t n, *up;
 
@@ -345,12 +369,12 @@ one_pass_freq_count(uint32_t block[], uint32_t b, uint32_t freq[], uint32_t syms
 
 /*
 ** INPUT:        freq[i] is the frequency of symbol i.
-**               syms[0..n-1] is a list of the symbols in freq[] 
+**               syms[0..n-1] is a list of the symbols in freq[]
 **               with a non-zero freq
 ** OUTPUT:       None.
 ** SIDE EFFECTS: Outputs some bits.
 **               syms[i] contains the ordinal symbol # for symbol i.
-**               freq[i] contains the codeword length for symbol i. 
+**               freq[i] contains the codeword length for symbol i.
 **
 ** (1) Sort syms[0..n-1] using freq[syms[i]] as the key for syms[i]
 ** (2) Run in-place Huffman on freqs to overwrite freqs with codeword lens
@@ -370,23 +394,23 @@ void build_codes(FILE* out_file, uint32_t syms[], uint32_t freq[], uint32_t n)
     uint32_t cw_lens[L + 1];
 
     //{uint32_t i;
-    //fprintf(stderr,"*********************************************************\n");
-    //fprintf(stderr,"n         : %u\n",n);
-    //fprintf(stderr,"syms: ");
-    //for(i=0;i<n;i++) fprintf(stderr,"%4u ",syms[i]);
-    //fprintf(stderr,"\n");
-    //fprintf(stderr,"freq: ");
-    //for(i=0;i<11;i++) fprintf(stderr,"%4u ",freq[i]);
-    //fprintf(stderr,"\n\n");
+    // fprintf(stderr,"*********************************************************\n");
+    // fprintf(stderr,"n         : %u\n",n);
+    // fprintf(stderr,"syms: ");
+    // for(i=0;i<n;i++) fprintf(stderr,"%4u ",syms[i]);
+    // fprintf(stderr,"\n");
+    // fprintf(stderr,"freq: ");
+    // for(i=0;i<11;i++) fprintf(stderr,"%4u ",freq[i]);
+    // fprintf(stderr,"\n\n");
     //}
     indirect_sort(freq, syms, syms, n);
 
     calculate_minimum_redundancy(freq, syms, n);
 
     //{uint32_t i;
-    //fprintf(stderr,"freq: ");
-    //for(i=0;i<6;i++) fprintf(stderr,"%4u ",freq[i]);
-    //fprintf(stderr,"\n\n");
+    // fprintf(stderr,"freq: ");
+    // for(i=0;i<6;i++) fprintf(stderr,"%4u ",freq[i]);
+    // fprintf(stderr,"\n\n");
     //}
 
     // calculcate max_codeword_length and set cw_lens[]
@@ -412,14 +436,14 @@ void build_codes(FILE* out_file, uint32_t syms[], uint32_t freq[], uint32_t n)
 
     build_canonical_arrays(cw_lens, max_codeword_length);
 
-    //fprintf(stderr,"*********************************************************\n");
-    //fprintf(stderr,"n: %10u\n",n);
-    //fprintf(stderr,"max_cw_len: %5u\n",max_codeword_length);
+    // fprintf(stderr,"*********************************************************\n");
+    // fprintf(stderr,"n: %10u\n",n);
+    // fprintf(stderr,"max_cw_len: %5u\n",max_codeword_length);
     //{uint32_t i;
-    //fprintf(stderr,"cw_lens : \n");
-    //for(i=0;i<=max_codeword_length;i++)
-    //fprintf(stderr,"%u\n",cw_lens[i]);
-    //fprintf(stderr,"\n");
+    // fprintf(stderr,"cw_lens : \n");
+    // for(i=0;i<=max_codeword_length;i++)
+    // fprintf(stderr,"%u\n",cw_lens[i]);
+    // fprintf(stderr,"\n");
     //}
 
     OUTPUT_ULONG(out_file, n, LOG2_MAX_SYMBOL);
@@ -476,7 +500,8 @@ void build_canonical_arrays(uint32_t cw_lens[], uint32_t max_cw_length)
     q = lj_base;
     uint32_t* pp = min_code;
     int32_t left_shift = (sizeof(uint32_t) << 3) - 1;
-    for (p = cw_lens + 1; q < lj_base + max_cw_length; p++, q++, pp++, left_shift--)
+    for (p = cw_lens + 1; q < lj_base + max_cw_length;
+         p++, q++, pp++, left_shift--)
         if (*p == 0)
             *q = *(q - 1);
         else
@@ -485,12 +510,13 @@ void build_canonical_arrays(uint32_t cw_lens[], uint32_t max_cw_length)
         *q = MAX_ULONG;
 
     //{uint32_t i;
-    //for(i = 0 ; i < max_cw_length ; i++)
-    //    fprintf(stderr,"%3d %8lu %8lx %8lx\n",i,offset[i],min_code[i],lj_base[i]);
-    //fprintf(stderr,"\n");
-    //for(i = 1 ; i <= L ; i++)
+    // for(i = 0 ; i < max_cw_length ; i++)
+    //    fprintf(stderr,"%3d %8lu %8lx
+    //    %8lx\n",i,offset[i],min_code[i],lj_base[i]);
+    // fprintf(stderr,"\n");
+    // for(i = 1 ; i <= L ; i++)
     //    fprintf(stderr,"%d ",cw_lens[i]);
-    //fprintf(stderr,"\n");
+    // fprintf(stderr,"\n");
     //}
 } // build_canonical_arrays()
 
@@ -516,9 +542,9 @@ void generate_mapping(uint32_t cw_lens[], uint32_t syms[], uint32_t freq[],
         syms[syms[i]] = cw_lens[freq[syms[i]] - 1]++;
 
     //{uint32_t i;
-    //fprintf(stderr,"mapping\n");
-    //for(i = 0 ; i <= n; i++)
-    //fprintf(stderr,"%8u %8u\n",syms[i],i);
-    //fprintf(stderr,"\n");
+    // fprintf(stderr,"mapping\n");
+    // for(i = 0 ; i <= n; i++)
+    // fprintf(stderr,"%8u %8u\n",syms[i],i);
+    // fprintf(stderr,"\n");
     //}
 } /* generate_mapping() */

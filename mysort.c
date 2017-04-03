@@ -14,22 +14,22 @@
 
 #include "mysort.h"
 
-#define swapcode(parmi, parmj, n)                   \
-    {                                               \
-        int32_t i = (n) / es;                       \
-        register uint32_t* pi = (uint32_t*)(parmi); \
-        register uint32_t* pj = (uint32_t*)(parmj); \
-        do {                                        \
-            register uint32_t t;                    \
-            t = *pi;                                \
-            *pi++ = *pj;                            \
-            *pj++ = t;                              \
-        } while (--i > 0);                          \
+#define swapcode(parmi, parmj, n)                                              \
+    {                                                                          \
+        int32_t i = (n) / es;                                                  \
+        register uint32_t* pi = (uint32_t*)(parmi);                            \
+        register uint32_t* pj = (uint32_t*)(parmj);                            \
+        do {                                                                   \
+            register uint32_t t;                                               \
+            t = *pi;                                                           \
+            *pi++ = *pj;                                                       \
+            *pj++ = t;                                                         \
+        } while (--i > 0);                                                     \
     }
 
 #define swap(a, b) swapcode(a, b, es)
-#define vecswap(a, b, n) \
-    if ((n) > 0)         \
+#define vecswap(a, b, n)                                                       \
+    if ((n) > 0)                                                               \
     swapcode(a, b, n)
 
 int32_t cmp(uint32_t* a, uint32_t* b, uint32_t freq[])
@@ -37,11 +37,11 @@ int32_t cmp(uint32_t* a, uint32_t* b, uint32_t freq[])
     return freq[*a] - freq[*b];
 }
 
-uint32_t*
-med3(uint32_t* a, uint32_t* b, uint32_t* c, uint32_t freq[])
+uint32_t* med3(uint32_t* a, uint32_t* b, uint32_t* c, uint32_t freq[])
 {
-    return cmp(a, b, freq) < 0 ? (cmp(b, c, freq) < 0 ? b : (cmp(a, c, freq) < 0 ? c : a))
-                               : (cmp(b, c, freq) > 0 ? b : (cmp(a, c, freq) < 0 ? a : c));
+    return cmp(a, b, freq) < 0
+        ? (cmp(b, c, freq) < 0 ? b : (cmp(a, c, freq) < 0 ? c : a))
+        : (cmp(b, c, freq) > 0 ? b : (cmp(a, c, freq) < 0 ? a : c));
 }
 
 #define min(a, b) (a) < (b) ? a : b

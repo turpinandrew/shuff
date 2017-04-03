@@ -4,8 +4,8 @@
 ** Format of compressed file:
 **
 ** blocks of header + canonical coded data until n == 0 in the header
-**      
-** Where header = 
+**
+** Where header =
 **      LOG2_MAX_SYMBOL bits is number of distinct symbols (last block == 0)
 **      LOG2_L          bits is maximum codeword length
 **      next is a reverse list of n unary codes coding L-l_i for each symbol
@@ -74,21 +74,20 @@ void do_decoding(FILE* in_file)
 ** Read decode header, converting unary coded codeword lens into mapping
 ** using distribution sort with cw_lens[]
 **
-** (1) Read n 
+** (1) Read n
 ** (2) Read max cw length.
 ** (3) Read unary list of max_cw_len - l_i into lens.
 ** (4) Interp decode list of symbols into syms.
 ** (5) Build cw_lens[]
 ** (6) Build mapping[]
 */
-int32_t
-read_header(FILE* in_file, uint32_t mapping[], uint32_t cw_lens[])
+int32_t read_header(FILE* in_file, uint32_t mapping[], uint32_t cw_lens[])
 {
     int32_t i, n;
     int32_t *lens, *p;
 
     n = INPUT_ULONG(in_file, LOG2_MAX_SYMBOL);
-    //fprintf(stderr,"n: %10u\n",n);
+    // fprintf(stderr,"n: %10u\n",n);
     if (n == 0)
         return 0; /* last block */
 
@@ -97,7 +96,7 @@ read_header(FILE* in_file, uint32_t mapping[], uint32_t cw_lens[])
         peak_lens_memory = n + 1;
 
     max_cw_len = INPUT_ULONG(in_file, LOG2_L);
-    //fprintf(stderr,"max_cw_len: %5u\n",max_cw_len);
+    // fprintf(stderr,"max_cw_len: %5u\n",max_cw_len);
 
     for (i = 0; i <= (int)max_cw_len; i++)
         cw_lens[i] = 0;
@@ -110,10 +109,10 @@ read_header(FILE* in_file, uint32_t mapping[], uint32_t cw_lens[])
         ;
 
     //{uint32_t i;
-    //fprintf(stderr,"cw_lens : \n");
-    //for(i=min_cw_len;i<=max_cw_len;i++)
-    //fprintf(stderr,"%2d) %u\n",i, cw_lens[i]);
-    //fprintf(stderr,"\n");
+    // fprintf(stderr,"cw_lens : \n");
+    // for(i=min_cw_len;i<=max_cw_len;i++)
+    // fprintf(stderr,"%2d) %u\n",i, cw_lens[i]);
+    // fprintf(stderr,"\n");
     //}
 
     build_canonical_arrays(cw_lens, max_cw_len);
@@ -147,10 +146,10 @@ read_header(FILE* in_file, uint32_t mapping[], uint32_t cw_lens[])
     }
 
     //{int32_t i;
-    //fprintf(stderr,"mapping\n");
-    //for(i = 0 ; i < n; i++)
-    //fprintf(stderr,"%8u %8u\n",i, mapping[i]);
-    //fprintf(stderr,"\n");
+    // fprintf(stderr,"mapping\n");
+    // for(i = 0 ; i < n; i++)
+    // fprintf(stderr,"%8u %8u\n",i, mapping[i]);
+    // fprintf(stderr,"\n");
     //}
 
     free(lens);
@@ -177,17 +176,17 @@ void build_lut()
             lut[i] = NULL; //-(j+1);
     }
     //{int32_t i;
-    //for(i = 0 ; i < (1 << LUT_BITS) ; i++)
-    //if (lut[i] == NULL)
-    //fprintf(stderr, "lut[%2x] NULL\n",i);
-    //else
-    //fprintf(stderr, "lut[%2x] %lu\n",i,lut[i]-lj_base);
-    //for(i = 240 ; i < LUT_SIZE ; i++)
-    //if (lut[i] == NULL)
-    //fprintf(stderr, "lut[%2x] NULL\n",i);
-    //else
-    //fprintf(stderr, "lut[%2x] %lu\n",i,lut[i]-lj_base);
-    //fflush(stderr);
+    // for(i = 0 ; i < (1 << LUT_BITS) ; i++)
+    // if (lut[i] == NULL)
+    // fprintf(stderr, "lut[%2x] NULL\n",i);
+    // else
+    // fprintf(stderr, "lut[%2x] %lu\n",i,lut[i]-lj_base);
+    // for(i = 240 ; i < LUT_SIZE ; i++)
+    // if (lut[i] == NULL)
+    // fprintf(stderr, "lut[%2x] NULL\n",i);
+    // else
+    // fprintf(stderr, "lut[%2x] %lu\n",i,lut[i]-lj_base);
+    // fflush(stderr);
     //}
 } /* build_lut() */
 
@@ -221,8 +220,9 @@ void decode(FILE* in_file, uint32_t mapping[])
         currcode -= min_code[currlen - 1];
         currcode += offset[currlen - 1];
 
-        //fprintf(stderr, "code %lx ",code);fflush(stderr);
-        //fprintf(stderr, "currlen %lu sym # %lu -> %lu\n",currlen, currcode,mapping[currcode]);fflush(stderr);
+        // fprintf(stderr, "code %lx ",code);fflush(stderr);
+        // fprintf(stderr, "currlen %lu sym # %lu -> %lu\n",currlen,
+        // currcode,mapping[currcode]);fflush(stderr);
 
         if (mapping[currcode] == EOF_SYMBOL)
             break;

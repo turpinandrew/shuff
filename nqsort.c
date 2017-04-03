@@ -7,21 +7,25 @@
  */
 
 /*
- * Qsort routine from J. Bentley & M. D. McIlroy's "Engineering a Sort Function".
+ * Qsort routine from J. Bentley & M. D. McIlroy's "Engineering a Sort
+ * Function".
  */
-#define swapcode(TYPE, parmi, parmj, n)     \
-    {                                       \
-        int32_t i = (n) / sizeof(TYPE);     \
-        register TYPE* pi = (TYPE*)(parmi); \
-        register TYPE* pj = (TYPE*)(parmj); \
-        do {                                \
-            register TYPE t = *pi;          \
-            *pi++ = *pj;                    \
-            *pj++ = t;                      \
-        } while (--i > 0);                  \
+#define swapcode(TYPE, parmi, parmj, n)                                        \
+    {                                                                          \
+        int32_t i = (n) / sizeof(TYPE);                                        \
+        register TYPE* pi = (TYPE*)(parmi);                                    \
+        register TYPE* pj = (TYPE*)(parmj);                                    \
+        do {                                                                   \
+            register TYPE t = *pi;                                             \
+            *pi++ = *pj;                                                       \
+            *pj++ = t;                                                         \
+        } while (--i > 0);                                                     \
     }
 
-#define SWAPINIT(a, es) swaptype = ((char*)a - (char*)0) % sizeof(int32_t) || es % sizeof(int32_t) ? 2 : es == sizeof(int32_t) ? 0 : 1;
+#define SWAPINIT(a, es)                                                        \
+    swaptype = ((char*)a - (char*)0) % sizeof(int32_t) || es % sizeof(int32_t) \
+        ? 2                                                                    \
+        : es == sizeof(int32_t) ? 0 : 1;
 
 void swapfunc(char* a, char* b, int32_t n, int32_t swaptype)
 {
@@ -29,16 +33,16 @@ void swapfunc(char* a, char* b, int32_t n, int32_t swaptype)
         swapcode(int32_t, a, b, n) else swapcode(char, a, b, n)
 }
 
-#define swap(a, b)                       \
-    if (swaptype == 0) {                 \
-        int32_t t = *(int32_t*)(a);      \
-        *(int32_t*)(a) = *(int32_t*)(b); \
-        *(int32_t*)(b) = t;              \
-    } else                               \
+#define swap(a, b)                                                             \
+    if (swaptype == 0) {                                                       \
+        int32_t t = *(int32_t*)(a);                                            \
+        *(int32_t*)(a) = *(int32_t*)(b);                                       \
+        *(int32_t*)(b) = t;                                                    \
+    } else                                                                     \
         swapfunc(a, b, es, swaptype)
 
-#define vecswap(a, b, n) \
-    if ((n) > 0)         \
+#define vecswap(a, b, n)                                                       \
+    if ((n) > 0)                                                               \
     swapfunc(a, b, n, swaptype)
 
 char* med3(char* a, char* b, char* c, int32_t (*cmp)(char*, char*))
