@@ -73,7 +73,7 @@
 /* encoding */
 void freq_count(FILE *in_file, FILE *freq_file);
 void two_pass_encoding(FILE *in_f, FILE *freq_file, FILE *out_file);
-void one_pass_encoding(FILE *in_f, FILE *out_file, int block_size);
+void one_pass_encoding(FILE *in_f, FILE *out_file, int32_t block_size);
 
 /* decoding */
 void do_decoding(FILE *f);

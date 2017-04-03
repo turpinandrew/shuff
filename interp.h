@@ -11,11 +11,11 @@
     #include "mytypes.h"
 #endif
 
-extern  ulong num_interp_bits;
+extern  uint32_t num_interp_bits;
 /***************************************************************************/
 
 typedef struct stack_elem_type {
-    int lo, hi;
+    int32_t lo, hi;
 } stack;
 
 #define CHECK_STACK_SIZE(n) \
@@ -43,9 +43,9 @@ do {                             \
 
 /***************************************************************************/
 
-inline uint ceil_log2(uint x) {
-  unsigned _B_x  = x - 1;
-  uint v = 0;
+inline uint32_t ceil_log2(uint32_t x) {
+  uint32_t _B_x  = x - 1;
+  uint32_t v = 0;
   for (; _B_x ; _B_x>>=1, (v)++);
   return v;
 }
@@ -54,16 +54,16 @@ inline uint ceil_log2(uint x) {
 
 #define CEILLOG_2(x,v)                                                  \
 do {                                                                    \
-  register unsigned _B_x  = (x) - 1;                                         \
+  register uint32_t _B_x  = (x) - 1;                                         \
   (v) = 0;                                                              \
   for (; _B_x ; _B_x>>=1, (v)++);                                       \
 } while(0)
 
 #define BINARY_ENCODE(f, x, b)                                             \
 do {                                                                    \
-  register long _B_x = (x);                                             \
-  register long _B_b = (b);                                             \
-  register int _B_nbits, _B_logofb, _B_thresh;                          \
+  register int32_t _B_x = (x);                                             \
+  register int32_t _B_b = (b);                                             \
+  register int32_t _B_nbits, _B_logofb, _B_thresh;                          \
   CEILLOG_2(_B_b, _B_logofb);                                           \
   _B_thresh = (1<<_B_logofb) - _B_b;                                    \
   if (--_B_x < _B_thresh)                                               \
@@ -83,9 +83,9 @@ do {                                                                    \
 
 #define BINARY_DECODE(f, x, b)                                             \
 do {                                                                    \
-  register long _B_x = 0;                                               \
-  register long _B_b = (b);                                             \
-  register int _B_logofb, _B_thresh;                                    \
+  register int32_t _B_x = 0;                                               \
+  register int32_t _B_b = (b);                                             \
+  register int32_t _B_logofb, _B_thresh;                                    \
   if (_B_b != 1)                                                        \
     {                                                                   \
       CEILLOG_2(_B_b, _B_logofb);                                       \
@@ -104,5 +104,5 @@ do {                                                                    \
 } while(0)
 
 /***************************************************************************/
-void interp_encode(FILE *out, uint A[], uint n);
-void interp_decode(FILE *in, uint A[], uint n);
+void interp_encode(FILE *out, uint32_t A[], uint32_t n);
+void interp_decode(FILE *in, uint32_t A[], uint32_t n);

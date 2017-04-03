@@ -36,13 +36,13 @@ Tue Sep 16 09:58:43 EST 1997
         n             number of symbols
 */
 void
-calculate_minimum_redundancy(uint freq[], uint syms[], int n) {
-        int root;                  /* next root node to be used */
-        int leaf;                  /* next leaf to be used */
-        int next;                  /* next value to be assigned */
-        int avbl;                  /* number of available nodes */
-        int used;                  /* number of internal nodes */
-        uint dpth;                  /* current depth of leaves */
+calculate_minimum_redundancy(uint32_t freq[], uint32_t syms[], int32_t n) {
+        int32_t root;                  /* next root node to be used */
+        int32_t leaf;                  /* next leaf to be used */
+        int32_t next;                  /* next value to be assigned */
+        int32_t avbl;                  /* number of available nodes */
+        int32_t used;                  /* number of internal nodes */
+        uint32_t dpth;                  /* current depth of leaves */
 
         /* check for pathological cases */
         if (n==0) { return; }

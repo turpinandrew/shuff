@@ -5,7 +5,7 @@
 **   (C) Code file in blocks of x symbols.            one_pass_encoding()
 **
 ** Format of freqs file:
-**      sizeof(ulong)*8 bits is number of symbols (n)
+**      sizeof(uint32_t)*8 bits is number of symbols (n)
 **      n "uints" to go into A[0..n-1]
 */
 #include "mytypes.h"
@@ -16,32 +16,32 @@
 #include "inplace.h"
 #include "interp.h"
 
-ulong num_source_syms = 0;
-ulong num_source_bits = 0;
-ulong num_interp_bits = 0;
-ulong num_unary_bits = 0;
-ulong num_header_bits = 0;
-ulong num_padding_bits = 0;
-ulong last_num_source_syms = 0;
-ulong last_num_source_bits = 0;
-ulong last_num_interp_bits = 0;
-ulong last_num_unary_bits = 0;
-ulong last_num_header_bits = 0;
-ulong last_num_padding_bits = 0;
+uint32_t num_source_syms = 0;
+uint32_t num_source_bits = 0;
+uint32_t num_interp_bits = 0;
+uint32_t num_unary_bits = 0;
+uint32_t num_header_bits = 0;
+uint32_t num_padding_bits = 0;
+uint32_t last_num_source_syms = 0;
+uint32_t last_num_source_bits = 0;
+uint32_t last_num_interp_bits = 0;
+uint32_t last_num_unary_bits = 0;
+uint32_t last_num_header_bits = 0;
+uint32_t last_num_padding_bits = 0;
 
 extern char verbose, very_verbose;
 
     /* Canonical coding arrays */
-ulong min_code[L];
-ulong lj_base[L];
-ulong  offset[L];
+uint32_t min_code[L];
+uint32_t lj_base[L];
+uint32_t  offset[L];
 
     /* prototypes */
-void build_canonical_arrays(uint cw_lens[], uint);
-void process_block(uint *block, uint b, uint *freq, uint *syms, FILE *out_file);
-uint one_pass_freq_count(uint block[], uint b, uint freq[],uint syms[], uint);
-void build_codes(FILE *f, uint *, uint *, uint n);
-void generate_mapping(uint [], uint [], uint [], uint, uint);
+void build_canonical_arrays(uint32_t cw_lens[], uint32_t);
+void process_block(uint32_t *block, uint32_t b, uint32_t *freq, uint32_t *syms, FILE *out_file);
+uint32_t one_pass_freq_count(uint32_t block[], uint32_t b, uint32_t freq[],uint32_t syms[], uint32_t);
+void build_codes(FILE *f, uint32_t *, uint32_t *, uint32_t n);
+void generate_mapping(uint32_t [], uint32_t [], uint32_t [], uint32_t, uint32_t);
 
 /*
 **
@@ -49,18 +49,18 @@ void generate_mapping(uint [], uint [], uint [], uint, uint);
 */
 void
 print_summary_stats() {
-    fprintf(stderr,"\nMessage symbols       : %10lu\n", num_source_syms);
-    fprintf(stderr,"Header bits           : %10lu (%5.2f bps)\n",
+    fprintf(stderr,"\nMessage symbols       : %10" PRIu32 "\n", num_source_syms);
+    fprintf(stderr,"Header bits           : %10" PRIu32 " (%5.2f bps)\n",
 	    num_header_bits, (double)num_header_bits/num_source_syms);
-    fprintf(stderr,"Subalphabet selection : %10lu (%5.2f bps)\n",
+    fprintf(stderr,"Subalphabet selection : %10" PRIu32 " (%5.2f bps)\n",
 	    num_interp_bits, (double)num_interp_bits/num_source_syms);
-    fprintf(stderr,"Codeword lengths      : %10lu (%5.2f bps)\n",
+    fprintf(stderr,"Codeword lengths      : %10" PRIu32 " (%5.2f bps)\n",
 	    num_unary_bits, (double)num_unary_bits/num_source_syms);
-    fprintf(stderr,"Message bits          : %10lu (%5.2f bps)\n",
+    fprintf(stderr,"Message bits          : %10" PRIu32 " (%5.2f bps)\n",
 	    num_source_bits, (double)num_source_bits/num_source_syms);
-    fprintf(stderr,"Padding bits          : %10lu (%5.2f bps)\n",
+    fprintf(stderr,"Padding bits          : %10" PRIu32 " (%5.2f bps)\n",
 	    num_padding_bits, (double)num_padding_bits/num_source_syms);
-    fprintf(stderr,"Total bytes           : %10lu (%5.2f bps)\n",
+    fprintf(stderr,"Total bytes           : %10" PRIu32 " (%5.2f bps)\n",
 	    (num_interp_bits+num_unary_bits+num_header_bits+num_padding_bits+num_source_bits)/ 8,
 	    (double)(num_interp_bits+num_unary_bits+num_header_bits+num_padding_bits+num_source_bits)/ num_source_syms);
 } /* print_summary_stats() */
@@ -89,7 +89,7 @@ do { \
 } while(0);
 
 void
-print_block_summary(ulong num_distinct, ulong num_syms, ulong max_symbol) {
+print_block_summary(uint32_t num_distinct, uint32_t num_syms, uint32_t max_symbol) {
     double i = (double)(num_interp_bits - last_num_interp_bits);
     double u = (double)(num_unary_bits  - last_num_unary_bits);
     double s = (double)(num_source_bits - last_num_source_bits);
@@ -98,11 +98,11 @@ print_block_summary(ulong num_distinct, ulong num_syms, ulong max_symbol) {
     double n = (double)num_syms;
 
     if (very_verbose == BLOCK_OUTPUT_IN_BYTES) 
-        fprintf(stderr,"%4lu %10lu %10lu %8lu %8lu %8lu %8lu %8lu %8lu\n",
-                    num_distinct, max_symbol, (ulong)(i+u+s+h+p)/8, (ulong)h, (ulong)i, (ulong)u, (ulong)s, (ulong)p, (ulong)(i+u+s+h+p));
+        fprintf(stderr,"%4" PRIu32 " %10" PRIu32 " %10" PRIu32 " %8" PRIu32 " %8" PRIu32 " %8" PRIu32 " %8" PRIu32 " %8" PRIu32 " %8" PRIu32 "\n",
+                    num_distinct, max_symbol, (uint32_t)(i+u+s+h+p)/8, (uint32_t)h, (uint32_t)i, (uint32_t)u, (uint32_t)s, (uint32_t)p, (uint32_t)(i+u+s+h+p));
     else
-        fprintf(stderr,"%4lu %10lu %10lu %8.2f %8.2f %8.2f %8.2f %8.2f %8.2f\n",
-                    num_distinct, max_symbol, (ulong)(i+u+s+h+p)/8, h/n, i/n, u/n, s/n, p/n, (i+u+s+h+p)/n);
+        fprintf(stderr,"%4" PRIu32 " %10" PRIu32 " %10" PRIu32 " %8.2f %8.2f %8.2f %8.2f %8.2f %8.2f\n",
+                    num_distinct, max_symbol, (uint32_t)(i+u+s+h+p)/8, h/n, i/n, u/n, s/n, p/n, (i+u+s+h+p)/n);
 
 } /* print_block_summary() */
 
@@ -115,13 +115,13 @@ print_block_summary(ulong num_distinct, ulong num_syms, ulong max_symbol) {
 ** ordinal symbol mapping.
 */
 inline 
-uint output(FILE *f, uint i, uint mapping[], uint cwlens[]) {
+uint32_t output(FILE *f, uint32_t i, uint32_t mapping[], uint32_t cwlens[]) {
 
-    uint sym_num = mapping[i];            // ordinal symbol number
+    uint32_t sym_num = mapping[i];            // ordinal symbol number
 
-    uint len = cwlens[i];
+    uint32_t len = cwlens[i];
 
-    ulong cw = min_code[len-1] + (sym_num - offset[len-1]);
+    uint32_t cw = min_code[len-1] + (sym_num - offset[len-1]);
 //fprintf(stderr, "currlen %4u symbol %6u -> %6u (cw = %8lx)\n",len, i,sym_num,cw);
 //fflush(stderr);
     OUTPUT_ULONG(f, cw, len);
@@ -136,25 +136,34 @@ uint output(FILE *f, uint i, uint mapping[], uint cwlens[]) {
 */
 void
 two_pass_encoding(FILE *in_file, FILE *freq_file, FILE *out_file) {
-    uint n, max_symbol, i, b;
-    uint *block, *up;           /* buffer for input symbols */ 
+    uint32_t n, max_symbol, i, b;
+    uint32_t *block, *up;           /* buffer for input symbols */ 
 
-    uint *syms;                 /* working array for mapping */
-    uint *freq;                 /* working array for freq */
+    uint32_t *syms;                 /* working array for mapping */
+    uint32_t *freq;                 /* working array for freq */
 
-    SHOW_MEM(L, ulong) /* min_code */
-    SHOW_MEM(L, ulong) /* lj_base */
-    SHOW_MEM(L, ulong) /* offset */
-    allocate(block, uint, BUFF_SIZE);
+    SHOW_MEM(L, uint32_t) /* min_code */
+    SHOW_MEM(L, uint32_t) /* lj_base */
+    SHOW_MEM(L, uint32_t) /* offset */
+    allocate(block, uint32_t, BUFF_SIZE);
 
-    fread(&max_symbol,sizeof(uint),1, freq_file);
+    size_t ret = fread(&max_symbol,sizeof(uint32_t),1, freq_file);
+    if(ret != 1) {
+        fprintf(stderr,"Edit encode.c fread(max_symbol)\n");
+        exit(EXIT_FAILURE);
+    }
 
-    allocate(syms, uint, max_symbol+2);
-    allocate(freq, uint, max_symbol+2);
-    SHOW_MEM(max_symbol+2, uint)
-    SHOW_MEM(max_symbol+2, uint)
+    allocate(syms, uint32_t, max_symbol+2);
+    allocate(freq, uint32_t, max_symbol+2);
+    SHOW_MEM(max_symbol+2, uint32_t)
+    SHOW_MEM(max_symbol+2, uint32_t)
 
-    fread(freq+1, sizeof(uint), max_symbol, freq_file);
+    ret = fread(freq+1, sizeof(uint32_t), max_symbol, freq_file);
+    if(ret != max_symbol) {
+        fprintf(stderr,"Edit encode.c fread(freq+1,max_symbol)\n");
+        exit(EXIT_FAILURE);
+    }
+
     freq[EOF_SYMBOL] = 1;
     n = 0;
     for(i = 0 ; i <= max_symbol ; i++)
@@ -163,21 +172,21 @@ two_pass_encoding(FILE *in_file, FILE *freq_file, FILE *out_file) {
 
     START_OUTPUT(out_file);
 
-	OUTPUT_ULONG(out_file, MAGIC, sizeof(ulong)*8);
-	num_header_bits += sizeof(ulong)*8;
+	OUTPUT_ULONG(out_file, MAGIC, sizeof(uint32_t)*8);
+	num_header_bits += sizeof(uint32_t)*8;
 
     build_codes(out_file, syms, freq, n);
 
-    while ((b=fread(block,sizeof(uint),BUFF_SIZE, in_file)) > 0)
+    while ((b=fread(block,sizeof(uint32_t),BUFF_SIZE, in_file)) > 0)
         for(up = block ; up < block + b ; up++) {
             CHECK_SYMBOL_RANGE(*up+1);
             (void)output(out_file, *up+1, syms, freq);
         }
 
-    uint temp = output(out_file, EOF_SYMBOL, syms, freq);
+    uint32_t temp = output(out_file, EOF_SYMBOL, syms, freq);
 
-    OUTPUT_ULONG(out_file, 0, sizeof(ulong)*8 - temp);    // pad last codeword
-    num_padding_bits += sizeof(ulong)*8 - temp;
+    OUTPUT_ULONG(out_file, 0, sizeof(uint32_t)*8 - temp);    // pad last codeword
+    num_padding_bits += sizeof(uint32_t)*8 - temp;
 
     OUTPUT_ULONG(out_file, 0, LOG2_MAX_SYMBOL);           // last block n = 0
     num_header_bits += LOG2_MAX_SYMBOL;
@@ -196,9 +205,9 @@ two_pass_encoding(FILE *in_file, FILE *freq_file, FILE *out_file) {
 ** count the freqs, build the codes, write the codes, "...and I am spent."
 */
 inline void
-process_block(uint *block, uint b, uint *freq, uint *syms, FILE *out_file) {
-    uint *up, n;
-    uint max_symbol, temp;
+process_block(uint32_t *block, uint32_t b, uint32_t *freq, uint32_t *syms, FILE *out_file) {
+    uint32_t *up, n;
+    uint32_t max_symbol, temp;
 
     if (very_verbose > 0) {      // assuming 1 cmp is faster than 6 assignments
         last_num_source_syms  = num_source_syms  ;  
@@ -227,8 +236,8 @@ process_block(uint *block, uint b, uint *freq, uint *syms, FILE *out_file) {
     
 	temp = output(out_file, EOF_SYMBOL, syms, freq);
     
-	OUTPUT_ULONG(out_file, 0, sizeof(ulong)*8 - temp); // pad last codeword
-    num_padding_bits += sizeof(ulong)*8 - temp;
+	OUTPUT_ULONG(out_file, 0, sizeof(uint32_t)*8 - temp); // pad last codeword
+    num_padding_bits += sizeof(uint32_t)*8 - temp;
 
     if (very_verbose > 0 )
         print_block_summary(n, b+1, max_symbol);  // b+1 for EOB symbol
@@ -238,45 +247,45 @@ process_block(uint *block, uint b, uint *freq, uint *syms, FILE *out_file) {
 ** A block_size == 0 indicates that an input symbol of 0 marks EOB.
 */
 void
-one_pass_encoding(FILE *in_file, FILE *out_file, int block_size) {
-    uint *block, *up; /* buffer for input symbols */ 
-    uint b;
-    uint *syms;                 /* working array for mapping */
-    uint *freq;                 /* working array for freq */
-    uint num_blocks=0;
+one_pass_encoding(FILE *in_file, FILE *out_file, int32_t block_size) {
+    uint32_t *block, *up; /* buffer for input symbols */ 
+    uint32_t b;
+    uint32_t *syms;                 /* working array for mapping */
+    uint32_t *freq;                 /* working array for freq */
+    uint32_t num_blocks=0;
     
-    uint current_array_size;
+    uint32_t current_array_size;
 
     if (block_size == 0)
         current_array_size = INITIAL_BLOCK_SIZE;
     else
         current_array_size = block_size;
     
-    allocate(block, uint, current_array_size+1);
+    allocate(block, uint32_t, current_array_size+1);
 
-    SHOW_MEM(current_array_size+1,uint)
-    SHOW_MEM(L, ulong) /* min_code */
-    SHOW_MEM(L, ulong) /* lj_base */
-    SHOW_MEM(L, ulong) /* offset */
+    SHOW_MEM(current_array_size+1,uint32_t)
+    SHOW_MEM(L, uint32_t) /* min_code */
+    SHOW_MEM(L, uint32_t) /* lj_base */
+    SHOW_MEM(L, uint32_t) /* offset */
 
-    allocate(freq, uint, MAX_SYMBOL+1);
-    allocate(syms, uint, MAX_SYMBOL+1);  // interp coding uses A[n]
-    SHOW_MEM(MAX_SYMBOL+1, uint)
-    SHOW_MEM(MAX_SYMBOL+1, uint)
+    allocate(freq, uint32_t, MAX_SYMBOL+1);
+    allocate(syms, uint32_t, MAX_SYMBOL+1);  // interp coding uses A[n]
+    SHOW_MEM(MAX_SYMBOL+1, uint32_t)
+    SHOW_MEM(MAX_SYMBOL+1, uint32_t)
 
     START_OUTPUT(out_file);
-	OUTPUT_ULONG(out_file, MAGIC,sizeof(ulong)*8);
-	num_header_bits += sizeof(ulong)*8;  
+	OUTPUT_ULONG(out_file, MAGIC,sizeof(uint32_t)*8);
+	num_header_bits += sizeof(uint32_t)*8;  
 
     if (very_verbose > 0) BLOCK_SUMMARY_HEADINGS;
 
     if (block_size > 0) {
-        while ((b = fread(block, sizeof(uint), block_size, in_file)) > 0) {
+        while ((b = fread(block, sizeof(uint32_t), block_size, in_file)) > 0) {
             process_block(block, b, freq, syms, out_file);
 	        num_blocks++;
         }
     } else {
-        while (fread(block,sizeof(uint),1, in_file) == 1)  { /* block ahead */
+        while (fread(block,sizeof(uint32_t),1, in_file) == 1)  { /* block ahead */
             up = block;
             b = 0;
             while (*up > 0) {
@@ -284,13 +293,13 @@ one_pass_encoding(FILE *in_file, FILE *out_file, int block_size) {
                 b++;
 	            if (b == current_array_size) {
                     current_array_size <<= 1;
-                    if ((block = (uint *)realloc(block, current_array_size*sizeof(uint))) == NULL) {
+                    if ((block = (uint32_t *)realloc(block, current_array_size*sizeof(uint32_t))) == NULL) {
                         fprintf(stderr,"Out of memory for block\n");
                         exit(-1);
                     }
                     up = block + b;
                 }
-                if (fread(up,sizeof(uint),1, in_file) != 1) {
+                if (fread(up,sizeof(uint32_t),1, in_file) != 1) {
                     fprintf(stderr,"WARNING: last block not terminated by 0\n");
                     *up = 0;
                     b--; /* exclude the 0 I add in 3 lines down */
@@ -313,9 +322,9 @@ one_pass_encoding(FILE *in_file, FILE *out_file, int block_size) {
 /*
 ** Fill freq[] with freqs
 */
-uint
-one_pass_freq_count(uint block[], uint b, uint freq[],uint syms[], uint ms) {
-    uint n, *up;
+uint32_t
+one_pass_freq_count(uint32_t block[], uint32_t b, uint32_t freq[],uint32_t syms[], uint32_t ms) {
+    uint32_t n, *up;
 
         /* clear all elements up to max_symbol = ms */
     for(up = freq ; up <= freq + ms ; up++)         
@@ -353,15 +362,15 @@ one_pass_freq_count(uint block[], uint b, uint freq[],uint syms[], uint ms) {
 ** (6) Overwrite syms with mapping.
 */
 
-int pcmp(char *a, char *b) { return *((uint *)a) - *((uint *)b); }
+int32_t pcmp(char *a, char *b) { return *((uint32_t *)a) - *((uint32_t *)b); }
 
 void
-build_codes(FILE *out_file, uint syms[], uint freq[], uint n) {
-    uint i, *p;
-    uint max_codeword_length, min_codeword_length;
-    uint cw_lens[L+1];
+build_codes(FILE *out_file, uint32_t syms[], uint32_t freq[], uint32_t n) {
+    uint32_t i, *p;
+    uint32_t max_codeword_length;//, min_codeword_length;
+    uint32_t cw_lens[L+1];
 
-//{uint i;
+//{uint32_t i;
 //fprintf(stderr,"*********************************************************\n");
 //fprintf(stderr,"n         : %u\n",n);
 //fprintf(stderr,"syms: ");
@@ -375,7 +384,7 @@ build_codes(FILE *out_file, uint syms[], uint freq[], uint n) {
 
     calculate_minimum_redundancy(freq, syms, n);
 
-//{uint i;
+//{uint32_t i;
 //fprintf(stderr,"freq: ");
 //for(i=0;i<6;i++) fprintf(stderr,"%4u ",freq[i]);
 //fprintf(stderr,"\n\n");
@@ -384,7 +393,8 @@ build_codes(FILE *out_file, uint syms[], uint freq[], uint n) {
         // calculcate max_codeword_length and set cw_lens[]
     for(i = 0 ; i <= L ; i++) 
         cw_lens[i] = 0;
-    min_codeword_length = max_codeword_length = freq[syms[0]];
+    // min_codeword_length = max_codeword_length = freq[syms[0]];
+    max_codeword_length = 0;
     for(p = syms ; p < syms + n ; p++) {
         if (freq[*p] > max_codeword_length)
             max_codeword_length = freq[*p];
@@ -393,7 +403,7 @@ build_codes(FILE *out_file, uint syms[], uint freq[], uint n) {
     
     #ifdef OUTPUT_PRELUDE_CODELENGTHS
     {
-        int i;
+        int32_t i;
         fprintf(stderr,"%d ",max_codeword_length);
         for(i = 1 ; i <= max_codeword_length ; i++)
             fprintf(stderr,"%d ",cw_lens[i]);
@@ -406,7 +416,7 @@ build_codes(FILE *out_file, uint syms[], uint freq[], uint n) {
 //fprintf(stderr,"*********************************************************\n");
 //fprintf(stderr,"n: %10u\n",n);
 //fprintf(stderr,"max_cw_len: %5u\n",max_codeword_length);
-//{uint i;
+//{uint32_t i;
 //fprintf(stderr,"cw_lens : \n");
 //for(i=0;i<=max_codeword_length;i++)
 //fprintf(stderr,"%u\n",cw_lens[i]);
@@ -417,11 +427,11 @@ build_codes(FILE *out_file, uint syms[], uint freq[], uint n) {
     OUTPUT_ULONG(out_file, max_codeword_length, LOG2_L);
     num_header_bits += LOG2_L + LOG2_MAX_SYMBOL;
 
-    nqsort((char *)syms, n, sizeof(uint), pcmp);
+    nqsort((char *)syms, n, sizeof(uint32_t), pcmp);
 
     #ifdef OUTPUT_PRELUDE_SUBALPHABET_GAPS
     {
-        int i;
+        int32_t i;
         fprintf(stderr,"%d ",n);
         fprintf(stderr,"%d ",syms[0]);
         for(i = 1 ; i < n ; i++)
@@ -446,9 +456,9 @@ build_codes(FILE *out_file, uint syms[], uint freq[], uint n) {
 ** Return cw_lens[] a freq count of codeword lengths.
 */
 void
-build_canonical_arrays(uint cw_lens[], uint max_cw_length){
-    ulong *q;
-    uint  *p;
+build_canonical_arrays(uint32_t cw_lens[], uint32_t max_cw_length){
+    uint32_t *q;
+    uint32_t  *p;
 
         // build offset
     q = offset;
@@ -465,8 +475,8 @@ build_canonical_arrays(uint cw_lens[], uint max_cw_length){
 
         // generate the lj_base array
     q  = lj_base;
-    unsigned long *pp = min_code;
-    int left_shift = (sizeof(ulong) << 3) - 1;
+    uint32_t *pp = min_code;
+    int32_t left_shift = (sizeof(uint32_t) << 3) - 1;
     for(p = cw_lens + 1; q < lj_base + max_cw_length; p++, q++, pp++, left_shift--)
         if (*p == 0)
             *q = *(q-1);
@@ -475,7 +485,7 @@ build_canonical_arrays(uint cw_lens[], uint max_cw_length){
     for( p = cw_lens + 1, q = lj_base ; *p == 0 ; p++, q++)
         *q = MAX_ULONG;
 
-//{uint i;
+//{uint32_t i;
 //for(i = 0 ; i < max_cw_length ; i++)
 //    fprintf(stderr,"%3d %8lu %8lx %8lx\n",i,offset[i],min_code[i],lj_base[i]);
 //fprintf(stderr,"\n");
@@ -496,9 +506,9 @@ build_canonical_arrays(uint cw_lens[], uint max_cw_length){
 **               cw_lens[] is destroyed.
 */
 void
-generate_mapping(uint cw_lens[],     uint syms[], uint freq[], 
-                 uint max_cw_length, uint n) {
-    int i;
+generate_mapping(uint32_t cw_lens[],     uint32_t syms[], uint32_t freq[], 
+                 uint32_t max_cw_length, uint32_t n) {
+    int32_t i;
 
     for( i = 1 ; i <= (int)max_cw_length ; i++)
         cw_lens[i] += cw_lens[i-1];     
@@ -506,7 +516,7 @@ generate_mapping(uint cw_lens[],     uint syms[], uint freq[],
     for(i = n - 1 ; i >= 0 ; i--)
         syms[syms[i]] = cw_lens[freq[syms[i]] - 1]++;
 
-//{uint i;
+//{uint32_t i;
 //fprintf(stderr,"mapping\n");
 //for(i = 0 ; i <= n; i++)
     //fprintf(stderr,"%8u %8u\n",syms[i],i);

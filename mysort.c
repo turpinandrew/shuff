@@ -15,11 +15,11 @@
 #include "mysort.h"
 
 #define swapcode(parmi, parmj, n) { \
-    long i = (n) / es; \
-    register uint *pi = (uint *) (parmi); \
-    register uint *pj = (uint *) (parmj); \
+    int32_t i = (n) / es; \
+    register uint32_t *pi = (uint32_t *) (parmi); \
+    register uint32_t *pj = (uint32_t *) (parmj); \
     do { \
-        register uint t; \
+        register uint32_t t; \
         t = *pi;    \
         *pi++ = *pj;            \
         *pj++ = t;            \
@@ -30,12 +30,12 @@
 #define vecswap(a, b, n)  if ((n) > 0) swapcode(a, b, n)
 
 
-int cmp(uint *a, uint *b, uint freq[]) {
+int32_t cmp(uint32_t *a, uint32_t *b, uint32_t freq[]) {
     return freq[*a] - freq[*b];
 }
 
-uint *
-med3(uint *a, uint *b, uint *c, uint freq[]) {
+uint32_t *
+med3(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t freq[]) {
     return cmp(a, b,freq) < 0 ?
            (cmp(b, c,freq) < 0 ? b : (cmp(a, c,freq) < 0 ? c : a ))
               :(cmp(b, c,freq) > 0 ? b : (cmp(a, c,freq) < 0 ? a : c ));
@@ -47,10 +47,10 @@ med3(uint *a, uint *b, uint *c, uint freq[]) {
 ** Sort sums using freq[syms[i]] as the key for syms[i]
 */
 void
-indirect_sort(uint *freq, uint *syms, uint *a, uint n) {
-    uint *pa, *pb, *pc, *pd, *pl, *pm, *pn;
-    int d, r;
-    const int es = 1;
+indirect_sort(uint32_t *freq, uint32_t *syms, uint32_t *a, uint32_t n) {
+    uint32_t *pa, *pb, *pc, *pd, *pl, *pm, *pn;
+    int32_t d, r;
+    const int32_t es = 1;
 
     if (n < 7) {
         for (pm = a + es; pm < a + n * es; pm += es)

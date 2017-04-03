@@ -1,9 +1,9 @@
 #ifndef _MYTYPES_H
 
+#include <stdint.h>
+
     #define _MYTYPES_H
 
-    typedef unsigned int  uint;
-    typedef unsigned long ulong;
 
 #endif
 

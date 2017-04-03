@@ -2,4 +2,4 @@
     #include "mytypes.h"
 #endif
 
-void indirect_sort(uint *, uint *, uint *, uint n);
+void indirect_sort(uint32_t *, uint32_t *, uint32_t *, uint32_t n);

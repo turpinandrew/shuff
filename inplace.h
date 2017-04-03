@@ -1,1 +1,1 @@
-void calculate_minimum_redundancy(uint freq[], uint syms[], int n);
+void calculate_minimum_redundancy(uint32_t freq[], uint32_t syms[], int32_t n);

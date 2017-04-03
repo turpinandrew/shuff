@@ -16,11 +16,11 @@
 **               Sets A[0]=0 and A[n] = MAX_SYMBOL
 */
 void
-interp_encode(FILE *out_file, uint A[], uint n) {
-    int lo, hi, mid, range;
+interp_encode(FILE *out_file, uint32_t A[], uint32_t n) {
+    int32_t lo, hi, mid, range;
     static stack *s    = NULL;
-    static uint  ss    = 0;
-    uint stack_pointer = 0;
+    static uint32_t  ss    = 0;
+    uint32_t stack_pointer = 0;
     
     A[0] = 0;
     A[n]  = MAX_SYMBOL;
@@ -33,8 +33,8 @@ interp_encode(FILE *out_file, uint A[], uint n) {
         range = A[hi] - A[lo] - (hi-lo-1);
         mid = lo + ((hi - lo) >> 1);
         BINARY_ENCODE(out_file, A[mid] - (A[lo] + (mid - lo - 1)), range);
-        if ((hi - mid > 1) && (A[hi]-A[mid] > (uint)(hi - mid))) PUSH(mid, hi);
-        if ((mid - lo > 1) && (A[mid]-A[lo] > (uint)(mid - lo))) PUSH(lo, mid);
+        if ((hi - mid > 1) && (A[hi]-A[mid] > (uint32_t)(hi - mid))) PUSH(mid, hi);
+        if ((mid - lo > 1) && (A[mid]-A[lo] > (uint32_t)(mid - lo))) PUSH(lo, mid);
     }
 } /* interp_encode() */
 
@@ -45,11 +45,11 @@ interp_encode(FILE *out_file, uint A[], uint n) {
 ** SIDE EFFECTS: A[0..n-1] overwritten.
 */
 void
-interp_decode(FILE *in_file, uint A[], uint n) {
-    int lo, hi, mid, range, j;
+interp_decode(FILE *in_file, uint32_t A[], uint32_t n) {
+    int32_t lo, hi, mid, range, j;
     static stack *s    = NULL;
-    static uint  ss    = 0;
-    uint stack_pointer = 0;
+    static uint32_t  ss    = 0;
+    uint32_t stack_pointer = 0;
 
     A[0] = 0;
     A[n] = MAX_SYMBOL;
@@ -64,13 +64,13 @@ interp_decode(FILE *in_file, uint A[], uint n) {
         BINARY_DECODE(in_file, A[mid], range);
         A[mid] += A[lo] + (mid - lo - 1);
 
-        if (A[hi]-A[mid] == (uint)(hi - mid))   // fill in the gaps of 1
+        if (A[hi]-A[mid] == (uint32_t)(hi - mid))   // fill in the gaps of 1
            for(j = mid+1 ; j < hi ; j++)
                 A[j] = A[j-1] + 1; 
         else
             if (hi - mid > 1) PUSH(mid, hi);
 
-        if (A[mid]-A[lo] == (uint)(mid - lo))   // fill in the gaps of 1
+        if (A[mid]-A[lo] == (uint32_t)(mid - lo))   // fill in the gaps of 1
            for(j = lo+1 ; j < mid ; j++)
                 A[j] = A[j-1] + 1; 
         else

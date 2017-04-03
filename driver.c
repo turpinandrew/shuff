@@ -14,10 +14,10 @@
 #ifdef LINUX
     #include <getopt.h>
 #else
-//    int getopt(int argc, char * const *argv, const char *optstring);
+//    int32_t getopt(int32_t argc, char * const *argv, const char *optstring);
 
     extern char *optarg;
-    extern int optind, opterr, optopt;
+    extern int32_t optind, opterr, optopt;
 #endif
 
 #include "mytypes.h"
@@ -73,28 +73,29 @@ usage() {
     exit(-1);
 }// usage()
 
+#pragma GCC diagnostic ignored "-Wwrite-strings"
 
-int
-main(int argc, char *argv[]) {
-  int block_size = DEFAULT_BLOCK_LEN;
+int32_t
+main(int32_t argc, char *argv[]) {
+  int32_t block_size = DEFAULT_BLOCK_LEN;
   char meth = 'a', ch;
   char zeroes_are_EOB = 0;  /* false */
   char *freq_filename = NULL;
   FILE *freq_file=NULL, *in_file;
 
-  if (sizeof(ulong)*8 != ASSUMING_ULONG) {
-    fprintf(stderr,"Edit code.h to reflect sizeof(ulong)=%d\n",sizeof(ulong)*8);
+  if (sizeof(uint32_t)*8 != ASSUMING_ULONG) {
+    fprintf(stderr,"Edit code.h to reflect sizeof(uint32_t)=%" PRIu64 "\n",sizeof(uint32_t)*8);
     return -1;
   }
-  if (LOG2_MAX_SYMBOL + LOG2_L > sizeof(ulong)*8) { /* see encode.c */
-    fprintf(stderr,"encode.c assumes LOG2_MAX_SYMBOL + LOG2_L (%d) <= sizeof(ulong) (%d)\n",LOG2_MAX_SYMBOL + LOG2_L,sizeof(ulong)*8);
+  if (LOG2_MAX_SYMBOL + LOG2_L > sizeof(uint32_t)*8) { /* see encode.c */
+    fprintf(stderr,"encode.c assumes LOG2_MAX_SYMBOL + LOG2_L (%d) <= sizeof(uint32_t) (%" PRIu64 ")\n",LOG2_MAX_SYMBOL + LOG2_L,sizeof(uint32_t)*8);
     return -1;
   }
 
   argv[argc] = "--";
   argc++;
   /* parse the command line */
-  while ((ch = getopt(argc, argv, "e:db:v:Z")) != EOF)
+  while ((ch = getopt(argc, argv, "e:db:v:Z")) != EOF) {
     switch (ch)
       {
       case 'Z' : zeroes_are_EOB = 1;
@@ -131,8 +132,11 @@ main(int argc, char *argv[]) {
       case 'b' : sscanf(optarg,"%d",&block_size); break;
        default : usage();
       }
+    }
 
-    if (meth == 'a') usage();
+    if (meth == 'a') {
+      usage();
+    }
     
     if (optind == argc) /* all options exhausted, so input must be from STDIN */
         in_file = stdin;
