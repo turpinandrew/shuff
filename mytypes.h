@@ -2,8 +2,6 @@
 
 #include <stdint.h>
 
-    #define _MYTYPES_H
-
+#define _MYTYPES_H
 
 #endif
-
