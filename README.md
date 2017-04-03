@@ -89,9 +89,9 @@ To encode _numbers_ in a single pass using zero symbols as block terminators:
 
 ## ORIGINS
 
-**shuff** is based upon original work of the two authors, described in "On the Implementation of Minimum-Redundancy Prefix Codes", _IEEE Transactions on Communications,_ 45(10):1200-1207, October 1997, and "Housekeeping for Prefix Coding", _IEEE Transactions on Communications,_ [48](/cgi-bin/man/man2html?4+48)(4):622-628, April 2000\.
+**shuff** is based upon original work of the two authors, described in "On the Implementation of Minimum-Redundancy Prefix Codes", _IEEE Transactions on Communications,_ 45(10):1200-1207, October 1997, and "Housekeeping for Prefix Coding", _IEEE Transactions on Communications,_ 48(4):622-628, April 2000.
 
-For more details of the implementation, see the two papers listed above, or the book _Compression and Coding Algorithms_ A. Moffat and A. Turpin, Kluwer Academic Press, February 2002. Further information about this book is available at [http://www.cs.mu.oz.au/caca/](http://www.cs.mu.oz.au/caca/)
+For more details of the implementation, see the two papers listed above, or the book _Compression and Coding Algorithms_ A. Moffat and A. Turpin, Kluwer Academic Press, February 2002. Further information about this book is available at [http://people.eng.unimelb.edu.au/ammoffat/caca/](http://people.eng.unimelb.edu.au/ammoffat/caca/)
 
 We ask that, if you use this software to derive experimental results that are reported in any way, you cite the original work in which the underlying processes are described (by referencing either both of the two listed papers, or the book); and also acknowledge our authorship of the implementation you have used.
 
