@@ -1,0 +1,269 @@
+.\"------------------------------------------------------------
+.\" Man page for shuff.  Written by aht, extended by alistair.
+.\"------------------------------------------------------------
+.TH shuff 1 "February 2000, February 2002" "Andrew Turpin and Alistair Moffat"
+.SH NAME
+shuff \- semi-static canonical coder for files of unsigned integers
+
+.SH SYNOPSIS
+.B shuff 
+.B \-e 
+[
+.BI \-b " block_size "
+] [
+.B \-Z
+] [
+.B \-v
+{ 1 | 2 | 3 }
+] [
+.I file
+] 
+.P
+.B shuff 
+.BI \-e1 " filename "
+[
+.BI \-v " n "
+] 
+[
+.I file
+] 
+.P
+.B shuff 
+.BI \-e2 " filename "
+[
+.BI \-v " n "
+] 
+[
+.I file
+] 
+.P
+.B shuff 
+.B \-d
+[
+.BI \-v " n "
+] 
+[
+.I file
+] 
+
+.SH DESCRIPTION
+.B shuff
+encodes and decodes a file of unsigned integers using semi-static
+canonical minimum-redundancy (Huffman) coding to 
+.IR stdout .
+There are two options for
+encoding: two-pass coding, which requires a pass over the input file
+to gather the frequencies of the integers, and a second pass to perform the
+actual coding; or one-pass coding where the integer file is broken into
+blocks and two passes are made on each block in memory (so the file 
+is only read once).
+.P
+Decoding is the same for files encoded with either method. 
+
+.B Two-pass encoding
+
+The two-pass encoding process writes 
+an auxiliary file of integer frequencies which is used as the
+.I filename
+argument of the -e1 and -e2 options.
+The file of frequencies is not required for decoding, since
+.B shuff
+stores a representation of the Huffman code within the compressed output.
+.TP "\w'\fB\-d\fP \fIdir\fP'u+2n"
+.BI \-e1 " filename "
+Causes 
+.B shuff
+to make an intial pass though 
+.I file
+or 
+.IR stdin ,
+writing a file of symbol frequencies to 
+.IR filename .
+.TP
+.BI \-e2 " filename "
+Causes 
+.B shuff
+to read the symbol frequency information from
+.IR filename , 
+build a minimum-redundancy canonical prefix code for that
+distribution,
+and then pass through 
+.I file
+or 
+.I stdin
+reading unsigned integers, calculating their corresponding
+codewords, and writing encoded bits to 
+.IR stdout .
+The file
+.IR filename
+should previously have been created from the same, or representative,
+data as is being compressed during the second pass.
+.TP
+.BI \-v " n "
+Prints statistical information to
+.I stderr
+showing the operations being performed.
+The larger the value of
+.I n
+the more detailed (and voluminous) the output.
+
+.HP 1
+.B One-pass encoding
+
+One-pass encoding splits the
+.I file
+or
+.I stdin
+into blocks, and then applies the algorithms of the two-pass coder 
+to each block in memory, writing bits to 
+.IR stdout .
+The blocks can be of fixed length (using the 
+.BI -b " blocksize "
+option), or can be terminated by integer zeroes in the input file (using the
+.B \-Z 
+option). 
+.TP "\w'\fB\-d\fP \fIdir\fP'u+2n"
+.B \-e
+Use one pass encoding.
+.TP
+.BI \-b " block_size "
+Encodes symbols in blocks of 
+.IR block_size .
+.TP
+.B \-Z
+Treats all symbols between zero symbols as a single block 
+(the -b option is ignored).  The zeroes are also included in the compressed message and
+reproduced by the decoder,
+allowing the process that writes the file of integers
+to determine where block boundaries should lie \- useful
+when each integer has a different probability
+in each block.
+It is not strictly
+necessary to have a zero as the final symbol of the file, but
+a warning message will be printed if this is not the case.
+.TP
+.BI \-v " n "
+Outputs summary information.
+Use of
+.I n=2
+outputs information per block in bits per symbol,
+.I n=3
+outputs information per block in bits.
+
+.SH USAGE
+To encode a file named
+.I numbers
+using two pass coding into a file 
+.I numbers-enc
+and then decode to a file
+.I numbers-dec
+you would proceed as
+.P
+.B shuff \-e1  
+.I freqs numbers
+.P
+.B shuff \-e2
+.I freqs numbers 
+>
+.I numbers-enc
+.P
+.B rm
+.IR freqs
+.P
+.B shuff \-d
+.I numbers-enc 
+>
+.I numbers-dec
+.P
+The files
+.I numbers
+and
+.I numbers-dec
+should be the same.  (Check with 
+.B cmp 
+.I numbers
+.I numbers-dec
+)
+
+To encode 
+.I numbers
+in a single pass using a block size of 1 MB (assuming 4-byte integers):
+.P
+.B shuff \-e
+.BI \-b " 262144 "
+.IR numbers " > " numbers-enc
+.P
+.B shuff \-d
+.IR numbers-enc " > " numbers-dec
+.P
+Again, the files
+.I numbers
+and
+.I numbers-dec
+should be the same.
+
+To encode 
+.I numbers
+in a single pass using zero symbols as block terminators: 
+.P
+.B shuff \-e
+.B \-Z
+.IR numbers " > " numbers-enc
+.P
+.B shuff \-d
+.IR numbers-enc " > " numbers-dec
+.P
+.B cmp 
+.I numbers numbers-dec
+
+.SH ORIGINS
+.B shuff
+is based upon original work of the two authors, described in
+"On the Implementation of Minimum-Redundancy Prefix Codes",
+.I IEEE Transactions on Communications,
+45(10):1200-1207, October 1997, and
+"Housekeeping for Prefix Coding",
+.I IEEE Transactions on Communications,
+48(4):622-628, April 2000. 
+.LP
+For more details of the implementation, see
+the two papers listed above, or the book
+.I Compression and Coding Algorithms 
+A. Moffat and A. Turpin,
+Kluwer Academic Press, February 2002.
+Further information about this book is available at
+http://www.cs.mu.oz.au/caca/
+
+We ask that, if you use this software to derive
+experimental results that are reported in any way,
+you cite the original work in which the
+underlying processes are described (by referencing either both of the
+two listed papers,
+or the book); and
+also acknowledge our authorship of the implementation you have used.
+
+.SH BUGS
+.B shuff
+has not been extensively tested, and should be used for research
+purposes only.
+Portability is not guaranteed.
+There is no warranty, either express or implied,
+that it is fit for any purpose whatsoever, and
+neither the authors nor The University of Melbourne accept any
+responsibility for 
+any consequences that may arise from your use of this software.
+
+.SH LICENCE
+Use and modify for your personal use, but do not distribute in any way shape or form (for
+commercial or noncommercial purposes, modified or unmodified, including 
+by passively making it available on any internet site) without
+prior consent of the authors.
+
+.SH AUTHORS
+Andrew Turpin* and Alistair Moffat,
+Department of Computer Science and Software Engineering,
+The University of Melbourne,
+Victoria 3010, Australia.
+Email: aht@cs.mu.oz.au, alistair@cs.mu.oz.au.
+(*Now at Curtin University, Perth, Australia,
+Email: andrew@computing.edu.au)
