@@ -1,116 +1,109 @@
-NAME
-=====
-       shuff - semi-static canonical coder for files of unsigned integers
 
-SYNOPSIS
-=====
-```
-       shuff -e [ -b block_size ] [ -Z ] [ -v { 1 | 2 | 3 } ] [ file ]
+# shuff
 
-       shuff -e1 filename [ -v n ] [ file ]
+shuff - semi-static canonical coder for files of unsigned integers
 
-       shuff -e2 filename [ -v n ] [ file ]
 
-       shuff -d [ -v n ] [ file ]
+## SYNOPSIS
 
-```
+**shuff** **-e** [ **-b** _block_size_ ] [ **-Z** ] [ **-v** { 1 | 2 | 3 } ] [ _file_ ]
 
-DESCRIPTION
-=====
+**shuff** **-e1** _filename_ [ **-v** _n_ ] [ _file_ ]
 
-       shuff  encodes  and  decodes a file of unsigned integers using semi-static canonical minimum-redundancy (Huffman) coding to stdout.  There are two options for encoding: two-pass coding, which
-       requires a pass over the input file to gather the frequencies of the integers, and a second pass to perform the actual coding; or one-pass coding where the integer file is broken into  blocks
-       and two passes are made on each block in memory (so the file is only read once).
+**shuff** **-e2** _filename_ [ **-v** _n_ ] [ _file_ ]
 
-       Decoding is the same for files encoded with either method.
+**shuff** **-d** [ **-v** _n_ ] [ _file_ ]
 
-       Two-pass encoding
 
-       The  two-pass  encoding process writes an auxiliary file of integer frequencies which is used as the filename argument of the -e1 and -e2 options.  The file of frequencies is not required for
-       decoding, since shuff stores a representation of the Huffman code within the compressed output.
+## DESCRIPTION
 
-       -e1 filename
-               Causes shuff to make an intial pass though file or stdin, writing a file of symbol frequencies to filename.
+**shuff** encodes and decodes a file of unsigned integers using semi-static canonical minimum-redundancy (Huffman) coding to _stdout_. There are two options for encoding: two-pass coding, which requires a pass over the input file to gather the frequencies of the integers, and a second pass to perform the actual coding; or one-pass coding where the integer file is broken into blocks and two passes are made on each block in memory (so the file is only read once).
 
-       -e2 filename
-               Causes shuff to read the symbol frequency information from filename, build a minimum-redundancy canonical prefix code for that distribution, and then pass through file or stdin  read‐
-               ing  unsigned  integers, calculating their corresponding codewords, and writing encoded bits to stdout.  The file filename should previously have been created from the same, or repre‐
-               sentative, data as is being compressed during the second pass.
+Decoding is the same for files encoded with either method.
 
-       -v n    Prints statistical information to stderr showing the operations being performed.  The larger the value of n the more detailed (and voluminous) the output.
+**Two-pass encoding**
 
-       One-pass encoding
+The two-pass encoding process writes an auxiliary file of integer frequencies which is used as the _filename_ argument of the -e1 and -e2 options. The file of frequencies is not required for decoding, since **shuff** stores a representation of the Huffman code within the compressed output.
 
-        One-pass encoding splits the file or stdin into blocks, and then applies the algorithms of the two-pass coder to each block in memory, writing bits to stdout.  The blocks  can  be  of  fixed
-        length (using the -b blocksize option), or can be terminated by integer zeroes in the input file (using the -Z option).
+**-e1** filename
 
-       -e      Use one pass encoding.
+Causes **shuff** to make an intial pass though _file_ or _stdin_, writing a file of symbol frequencies to _filename_.
 
-       -b block_size
-               Encodes symbols in blocks of block_size.
+**-e2** _filename_
 
-       -Z      Treats  all  symbols between zero symbols as a single block (the -b option is ignored).  The zeroes are also included in the compressed message and reproduced by the decoder, allowing
-               the process that writes the file of integers to determine where block boundaries should lie - useful when each integer has a different probability in each block.  It is  not  strictly
-               necessary to have a zero as the final symbol of the file, but a warning message will be printed if this is not the case.
+Causes **shuff** to read the symbol frequency information from _filename_, build a minimum-redundancy canonical prefix code for that distribution, and then pass through _file_ or _stdin_ reading unsigned integers, calculating their corresponding codewords, and writing encoded bits to _stdout_. The file _filename_ should previously have been created from the same, or representative, data as is being compressed during the second pass.
 
-       -v n    Outputs summary information.  Use of n=2 outputs information per block in bits per symbol, n=3 outputs information per block in bits.
+**-v** _n_
 
-USAGE
-=====
+Prints statistical information to _stderr_ showing the operations being performed. The larger the value of _n_ the more detailed (and voluminous) the output.
 
-       To encode a file named numbers using two pass coding into a file numbers-enc and then decode to a file numbers-dec you would proceed as
+**One-pass encoding**
 
-```
-       shuff -e1 freqs numbers
+One-pass encoding splits the _file_ or _stdin_ into blocks, and then applies the algorithms of the two-pass coder to each block in memory, writing bits to _stdout_. The blocks can be of fixed length (using the **-b** _blocksize_ option), or can be terminated by integer zeroes in the input file (using the **-Z** option).
 
-       shuff -e2 freqs numbers > numbers-enc
+**-e**
 
-       rm freqs
+Use one pass encoding.
 
-       shuff -d numbers-enc > numbers-dec
+**-b** _block_size_
 
-       The files numbers and numbers-dec should be the same.  (Check with cmp numbers numbers-dec )
+Encodes symbols in blocks of _block_size_.
 
-       To encode numbers in a single pass using a block size of 1 MB (assuming 4-byte integers):
+**-Z**
 
-       shuff -e -b 262144 numbers > numbers-enc
+Treats all symbols between zero symbols as a single block (the -b option is ignored). The zeroes are also included in the compressed message and reproduced by the decoder, allowing the process that writes the file of integers to determine where block boundaries should lie - useful when each integer has a different probability in each block. It is not strictly necessary to have a zero as the final symbol of the file, but a warning message will be printed if this is not the case.
 
-       shuff -d numbers-enc > numbers-dec
+**-v** _n_
 
-       Again, the files numbers and numbers-dec should be the same.
+Outputs summary information. Use of _n=2_ outputs information per block in bits per symbol, _n=3_ outputs information per block in bits.
 
-       To encode numbers in a single pass using zero symbols as block terminators:
+## USAGE
 
-       shuff -e -Z numbers > numbers-enc
+To encode a file named _numbers_ using two pass coding into a file _numbers-enc_ and then decode to a file _numbers-dec_ you would proceed as
 
-       shuff -d numbers-enc > numbers-dec
+**shuff -e1** _freqs numbers_
 
-       cmp numbers numbers-dec
-```
-ORIGINS
-=====
+**shuff -e2** _freqs numbers_ > _numbers-enc_
 
-       shuff  is  based upon original work of the two authors, described in "On the Implementation of Minimum-Redundancy Prefix Codes", IEEE Transactions on Communications, 45(10):1200-1207, October
-       1997, and "Housekeeping for Prefix Coding", IEEE Transactions on Communications, 48(4):622-628, April 2000.
+**rm** _freqs_
 
-       For more details of the implementation, see the two papers listed above, or the book Compression and Coding Algorithms A. Moffat and A. Turpin, Kluwer Academic Press, February 2002.   Further
-       information about this book is available at http://www.cs.mu.oz.au/caca/
+**shuff -d** _numbers-enc_ > _numbers-dec_
 
-       We  ask  that, if you use this software to derive experimental results that are reported in any way, you cite the original work in which the underlying processes are described (by referencing
-       either both of the two listed papers, or the book); and also acknowledge our authorship of the implementation you have used.
+The files _numbers_ and _numbers-dec_ should be the same. (Check with **cmp** _numbers_ _numbers-dec_ )
 
-BUGS
-=====
+To encode _numbers_ in a single pass using a block size of 1 MB (assuming 4-byte integers):
 
-       shuff has not been extensively tested, and should be used for research purposes only.  Portability is not guaranteed.  There is no warranty, either express or implied, that it is fit for  any
-       purpose whatsoever, and neither the authors nor The University of Melbourne accept any responsibility for any consequences that may arise from your use of this software.
+**shuff -e** **-b** _262144_ _numbers_ > _numbers-enc_
 
-LICENCE
-=====
+**shuff -d** _numbers-enc_ > _numbers-dec_
 
-       Use and modify for your personal use, but do not distribute in any way shape or form (for commercial or noncommercial purposes, modified or unmodified, including by passively making it avail‐
-       able on any internet site) without prior consent of the authors.
+Again, the files _numbers_ and _numbers-dec_ should be the same.
 
-AUTHORS
-=====
-       Andrew Turpin* and Alistair Moffat, Department of Computer Science  and  Software  Engineering,  The  University  of  Melbourne,  Victoria  3010,  Australia.
+To encode _numbers_ in a single pass using zero symbols as block terminators:
+
+**shuff -e** **-Z** _numbers_ > _numbers-enc_
+
+**shuff -d** _numbers-enc_ > _numbers-dec_
+
+**cmp** _numbers numbers-dec_
+
+## ORIGINS
+
+**shuff** is based upon original work of the two authors, described in "On the Implementation of Minimum-Redundancy Prefix Codes", _IEEE Transactions on Communications,_ 45(10):1200-1207, October 1997, and "Housekeeping for Prefix Coding", _IEEE Transactions on Communications,_ [48](/cgi-bin/man/man2html?4+48)(4):622-628, April 2000\.
+
+For more details of the implementation, see the two papers listed above, or the book _Compression and Coding Algorithms_ A. Moffat and A. Turpin, Kluwer Academic Press, February 2002. Further information about this book is available at [http://www.cs.mu.oz.au/caca/](http://www.cs.mu.oz.au/caca/)
+
+We ask that, if you use this software to derive experimental results that are reported in any way, you cite the original work in which the underlying processes are described (by referencing either both of the two listed papers, or the book); and also acknowledge our authorship of the implementation you have used.
+
+## BUGS
+
+**shuff** has not been extensively tested, and should be used for research purposes only. Portability is not guaranteed. There is no warranty, either express or implied, that it is fit for any purpose whatsoever, and neither the authors nor The University of Melbourne accept any responsibility for any consequences that may arise from your use of this software.
+
+
+## LICENCE
+
+Use and modify for your personal use, but do not distribute in any way shape or form (for commercial or noncommercial purposes, modified or unmodified, including by passively making it available on any internet site) without prior consent of the authors.
+
+## AUTHORS
+
+*Andrew Turpin* and *Alistair Moffat*, Department of Computer Science and Software Engineering, The University of Melbourne, Victoria 3010, Australia.
